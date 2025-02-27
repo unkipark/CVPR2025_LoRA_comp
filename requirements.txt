@@ -1,0 +1,6 @@
+pybind11
+detectron2 @ git+https://github.com/facebookresearch/detectron2.git
+opencv-python==4.8.0.74
+timm
+hydra-core
+wandb

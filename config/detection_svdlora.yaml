@@ -1,0 +1,59 @@
+hydra:
+  run:
+    dir: "${hydra:runtime.cwd}/seg/${mode}/${quality_level}/${now:%Y-%m-%d_%H-%M-%S}"
+
+mode: "TTT" # pre, TTT, test
+task_model: "faster_rcnn" # faster_rcnn, mask_rcnn, point_rend, detr
+model: "tic_svdlora" # tic_promptmodel_first2, tic_hp
+dataset: "coco"
+dataset_path: "${oc.env:HOME}/data/detectron2/coco"
+example_path: "${hydra:runtime.cwd}/examples"
+
+## Control Parameters
+gpu_id: 0
+
+config_path: "${hydra:runtime.cwd}/config"
+detr_config_path: "${hydra:runtime.cwd}/libraries/detrex/projects/detr/configs/detr_r50_dc5_300ep.py"
+detr_ckpt_url: "https://github.com/IDEA-Research/detrex-storage/releases/download/v0.3.0/converted_detr_r50_dc5.pth"
+point_rend_config_path: "${hydra:runtime.cwd}/libraries/detectron2/projects/PointRend/configs/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_coco.yaml"
+point_rend_ckpt_url: "https://dl.fbaipublicfiles.com/detectron2/PointRend/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_coco/164955410/model_final_edd263.pkl"
+
+num_images: 5000
+train_image_form: 0 # 0: original, 1: 256x256 patch
+epochs: 40
+batch_size: 8
+learning_rate: 5.e-3 # LoRA fine tuning
+scheduler: "multistep"
+quality_level: 1 # {1,2,3,4}
+VPT_lmbdas: [2, 1, 0.5, 0.2]
+VPT_lmbda: null
+LORA_METHOD: "svd" #svd or lora or linear
+transtic_weight: "base_codec"
+svd_pre_weight: "cls"
+checkpoint: "${hydra:runtime.cwd}/${svd_pre_weight}/${quality_level}/checkpoint_best_loss.pth.tar"  # this have to be 'null' when test TransTIC
+checkpoint_pre_trained: "${hydra:runtime.cwd}/examples/utils/${transtic_weight}_{quality_level}.pth.tar"  # 
+
+num_workers: 4
+lmbda:  0.0018 # {0.0018, 0.0035, 0.0067, 0.013}
+test_batch_size: 1
+aux_learning_rate: 1.e-3
+patch_size: 256
+cuda: True
+save: True
+clip_max_norm: 1.0
+seed: 42
+LOCATION: 'prepend'
+DEEP: True
+NUM_TOKENS: 16
+INITIATION: 'random'
+PROJECT: -1
+DROPOUT: 0.
+TRANSFER_TYPE: 'prompt'
+ARCHITECT: 'both'
+WINDOW: 'same'
+HYPERPRIOR: False
+RETURN_ATTENTION: False
+MODEL_DECODER: False
+MASK_DOWNSAMPLE: 2
+DECODER_BLOCK: [1,2,3,4]
+hyperparameter_tuning: False
