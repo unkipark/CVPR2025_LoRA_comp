@@ -3,7 +3,7 @@
 Official Pytorch code for "Test-Time Fine-Tuning of Image Compression Models for Multi-TaskAdaptability"
 
 <p align="center">
-<img width="500" src="overview.png">
+<img width="500" src="overview.svg">
 </p>
 
 ## Abstract:
@@ -41,7 +41,7 @@ To control this behavior, you must modify the `mode` field in each task-specific
 Specifically, set the mode to "pre" for pre-training and "TTT" for test-time fine-tuning.
 Additionally, other settings such as the target rate point, the corresponding lambda value, and the task-specific model can also be configured through the same configuration file.
 <p align="center">
-<img width="500" src="ttft_procedure.png">
+<img width="500" src="ttft_procedure.svg">
 </p>
 
 ### Classification:
@@ -53,8 +53,10 @@ Additionally, other settings such as the target rate point, the corresponding la
 ### Instance Segmentation:
 `python example/segmentation.py`<br>
 
+## Performance:
+
 ## Citation:
-If you find the ideas and codes useful for your research, please cite the paper:
+If you find our project useful, please cite the following paper:
 ```bibtex
 @inproceedings{LoRA_comp,
   title={Test-Time Fine-Tuning of Image Compression Models for Multi-Task Adaptability},
