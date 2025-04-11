@@ -29,11 +29,11 @@ Once downloaded, the archive should be extracted and the contents placed within 
 For example, the classification weights for quality level 1 should be located at `checkpoints/cls/1/checkpoint_best_loss.pth.tar`.
 | Tasks                  |       |
 |------------------------|-------|
-| **Backbone codec (TIC)**   | [1](./checkpoints/base_codec_1.pth) |
-| **Human Perception** | [1](./checkpoints/segmentation_1.pth) |
-| **Classification**     | [1](./checkpoints/classification_1.pth) |
-| **Object Detection**   | [1](./checkpoints/detection_1.pth) |
-| **Instance Segmentation** | [1](./checkpoints/segmentation_1.pth) |
+| **Backbone codec (TIC)**   | [Backbone code weight](./checkpoints/base_codec_1.pth) |
+| **Human Perception** | [HP weight](./checkpoints/segmentation_1.pth) |
+| **Classification**     | [CLS weight](./checkpoints/classification_1.pth) |
+| **Object Detection**   | [OD weight](./checkpoints/detection_1.pth) |
+| **Instance Segmentation** | [IS weight](./checkpoints/segmentation_1.pth) |
 
 ## Usage:
 Our method consists of two stages: pre-training and test-time fine-tuning.
