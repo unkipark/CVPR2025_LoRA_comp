@@ -58,7 +58,7 @@ __all__ = [
     "QReLU",
     "RSTB",
     "RSTB_PromptModel",
-    "RSTB_svdlora", #MY_EDIT
+    "RSTB_svdlora",
 ]
 
 
@@ -377,26 +377,6 @@ class Mlp(nn.Module):
         x = self.drop(x)
         return x
 
-class Mlp_svdlora(nn.Module):
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
-        super().__init__()
-        out_features = out_features or in_features
-        hidden_features = hidden_features or in_features
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        # self.fc1 = lora.Linear_svd(in_features, hidden_features, r=4, lora_alpha=8)
-        self.act = act_layer()
-        self.fc2 = nn.Linear(hidden_features, out_features)
-        # self.fc2 = lora.Linear_svd(hidden_features, out_features, r=4, lora_alpha=8)
-        self.drop = nn.Dropout(drop)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.act(x)
-        x = self.drop(x)
-        x = self.fc2(x)
-        x = self.drop(x)
-        return x
-
 def window_partition(x, window_size):
     """
     Args:
@@ -581,24 +561,6 @@ class LoRALayer():
     def merge_BA(self, param_name: str):
         lora_name = self.params_with_lora[param_name]
         return self.transpose((eval(f'self.{lora_name}_lora_B') @ eval(f'self.{lora_name}_lora_A')).view(eval(f'self.{param_name}').shape))
-
-    def merge_AB_new(self, param_name: str):
-        lora_name = self.params_with_lora[param_name]
-        # return self.transpose((eval(f'self.{lora_name}_lora_A').permute(1,0) @ eval(f'self.{lora_name}_lora_B').permute(1,0)).view(eval(f'self.{param_name}').shape))        
-        # return self.transpose((eval(f'self.{lora_name}_lora_A.detach()').permute(1,0) @ eval(f'self.{lora_name}_lora_B.detach()').permute(1,0)).view(eval(f'self.{param_name}').shape))        
-        # return self.transpose(torch.pinverse(eval(f'self.{lora_name}_lora_B.detach()') @ eval(f'self.{lora_name}_lora_A.detach()')).view(eval(f'self.{param_name}').shape))        
-        if torch.all(eval(f'self.{lora_name}_lora_B')) != 0 and torch.all(eval(f'self.{lora_name}_lora_A')) != 0:            
-            # inverse w/ scaling
-            # inverse_BA = torch.inverse(eval(f'self.{lora_name}_lora_B.detach()/self.{lora_name}_lora_B.detach().min()*10') @ eval(f'self.{lora_name}_lora_A.detach()/self.{lora_name}_lora_A.detach().min()*10'))
-            # inverse_BA *= eval(f'self.{lora_name}_lora_B.detach().min()/10*self.{lora_name}_lora_A.detach().min()/10')
-            # return self.transpose(inverse_BA.reshape(eval(f'self.{param_name}').shape))
-            # inverse w/o scaling
-            inverse_BA = torch.inverse(eval(f'self.{lora_name}_lora_B') @ eval(f'self.{lora_name}_lora_A'))
-            return self.transpose(inverse_BA).reshape(eval(f'self.{param_name}').shape)                    
-        else:
-            return self.transpose((eval(f'self.{lora_name}_lora_B') @ eval(f'self.{lora_name}_lora_A')).view(eval(f'self.{param_name}').shape))                    
-        
-        # return self.transpose((eval(f'self.{lora_name}_lora_B') @ eval(f'self.{lora_name}_lora_A')).view(eval(f'self.{param_name}').shape))                                
     
     def merge_BA_repeat(self, param_name: str):
         lora_name = self.params_with_lora[param_name]
@@ -612,137 +574,6 @@ class LoRALayer():
             p_new = p.detach() + self.merge_BA(param_name) * self.scaling
             set_param(self, param_name, param=p_new, mode='update')
 
-    def merge_lora_param_res(self, *res_layers):
-        r"""p_new = p + scaling * B @ A and keep differentiable to A and B"""
-        res_BA_list = []
-        for param_name, lora_name in self.params_with_lora.items():
-            p = set_param(self, param_name, mode='get')
-            # detach() is very important here
-            if self.r > 0 :
-                p_new = p.detach() + self.merge_BA(param_name) * self.scaling
-            else : 
-                p_new = p.detach()
-            for i in range(len(res_layers[0])):
-                # p_new += prev_layers[0][i].merge_BA(param_name) * prev_layers[0][i].scaling
-                # p_new += prev_layers[0][i].merge_AB_new(param_name) * prev_layers[0][i].scaling
-                # p_res = set_param(res_layers[0][i], param_name, mode='get')
-                # p_res_new = p_res.detach() + res_layers[0][i].merge_BA(param_name).detach() * res_layers[0][i].scaling
-
-                # res_BA = res_layers[0][i].merge_BA(param_name).detach() * res_layers[0][i].scaling
-                # res_BA = p_res.detach() + res_layers[0][i].merge_BA(param_name).detach() * res_layers[0][i].scaling
-                # res_BA = res_layers[0][i].merge_BA(param_name).detach() * res_layers[0][i].scaling
-                res_BA = res_layers[0][i].merge_BA(param_name) * res_layers[0][i].scaling
-        
-                # BAd = torch.zeros_like(res_BA)
-                # if torch.all(res_BA) != 0:      
-                    # filters = res_BA.detach().cpu().numpy()
-                    # num_filters = filters.shape[0]
-                    # for i in range(0, min(num_filters, 64), 20):
-                    #     filter_img = filters[i, 0]
-                    #     filter_img = ((filter_img-filter_img.min())/filter_img.max() * 255 ).astype(np.uint8)  # Normalize to [0, 255]
-                    #     save_image(filter_img, f'filter_{i}.png')
-
-                    # Z_prime_enc = torch.randn_like([16,192,16,16])
-                    # Z_prime_enc = torch.randn([16,192,16,16])
-                    # Y_prime = res_BA @ Z_prime_enc
-
-                    # max_val = torch.max(torch.abs(res_BA))
-                    # scaled_res_BA = res_BA / max_val      
-                    # inverse_res_BA = torch.inverse(scaled_res_BA) * max_val
-
-                    # max_val = torch.max(torch.abs(res_BA))
-                    # scaled_res_BA = res_BA / max_val      
-                    # inverse_res_BA = torch.inverse(scaled_res_BA) * max_val
-
-                    # inverse_res_BA = torch.inverse(res_BA)
-                    # BAd = inverse_res_BA
-                    # BAd = inverse_res_BA - p.detach() 
-
-                    # Z_prime_dec = (p_new + BAd) @ Y_prime
-
-                    # max_val = torch.max(torch.abs(res_BA))
-                    # scaled_res_BA = res_BA / max_val      
-                    # res_BA = torch.inverse(scaled_res_BA) * max_val
-
-                    # filters = res_BA.detach().cpu().numpy()
-                    # num_filters = filters.shape[0]
-                    # for i in range(0, min(num_filters, 64), 20):
-                    #     filter_img = filters[i, 0]
-                    #     filter_img = ((filter_img-filter_img.min())/filter_img.max() * 255 ).astype(np.uint8)  # Normalize to [0, 255]
-                    #     save_image(filter_img, f'filter_{i}_inverted.png')
-                    # res_BA = torch.flip(res_BA, [2,3])
-                                
-                res_BA_list.append(res_BA)
-                p_new += res_BA
-
-
-
-                # res_BA_zero = torch.zeros_like(res_BA)
-                # res_BA_list.append(res_BA_zero)
-
-
-                # Z_prime_enc = torch.randn_like(p_res_new)
-                # Y_prime = p_res_new @ Z_prime_enc
-
-                # inverse_p_res_new = torch.inverse(p_res_new)
-                # BAd = inverse_p_res_new - p.detach() 
-
-                # Z_prime_dec = (p_new + BAd) @ Y_prime
-
-
-                # res_BA = torch.zeros_like(p_res_new)
-                # if torch.all(p_res_new) != 0:            
-                #     res_BA = torch.inverse(p_res_new) - p.detach() 
-                #     res_BA = torch.flip(res_BA, [2,3])
-                # res_BA_list.append(res_BA)
-                # p_new += res_BA.detach()
-
-                # p_new += prev_layers[0][i].merge_AB_new(param_name) * prev_layers[0][i].scaling
-
-            #     #for test
-            #     p_new = p.detach()
-
-            #     prev_lora = prev_layers[0][i].merge_AB_new(param_name)
-            #     if prev_lora.mean() != 0:
-            #         scale = p_new.mean()/prev_lora.mean()
-            #         prev_lora *= scale                
-            #         scale_value.append(scale)
-            #     p_new += prev_lora
-            set_param(self, param_name, param=p_new, mode='update')
-        return res_BA_list
-
-    def merge_lora_param_res_concat(self, *res_layers):
-        r"""p_new = p + scaling * B @ A and keep differentiable to A and B"""
-        res_BA_list = []
-        for param_name, lora_name in self.params_with_lora.items():
-            p = set_param(self, param_name, mode='get')
-            
-            lora_name = self.params_with_lora[param_name]                
-            new_lora_B = eval(f'self.{lora_name}_lora_B')
-            new_lora_A = eval(f'self.{lora_name}_lora_A') 
-
-            for i in range(len(res_layers[0])):
-                #inverse test                
-                # res_lora_A = torch.transpose(eval(f'res_layers[0][{i}].{lora_name}_lora_B'), 0, 1)
-                # res_lora_B = torch.transpose(eval(f'res_layers[0][{i}].{lora_name}_lora_A'), 0, 1)
-                # new_lora_B = torch.cat((new_lora_B, res_lora_B), dim=1)
-                # new_lora_A = torch.cat((new_lora_A, res_lora_A), dim=0)               
-
-                new_lora_B = torch.cat((new_lora_B, eval(f'res_layers[0][{i}].{lora_name}_lora_B')), dim=1)
-                new_lora_A = torch.cat((new_lora_A, eval(f'res_layers[0][{i}].{lora_name}_lora_A')), dim=0)
-
-            # detach() is very important here            
-            # if self.r > 0 :
-            #     p_new = p.detach() + self.merge_BA(param_name) * self.scaling
-            # else : 
-            #     p_new = p.detach()
-                 
-            # p_new = p.detach() +  (new_lora_B @ new_lora_A).t().view(eval(f'self.{param_name}').shape) * self.scaling
-            p_new = p.detach() + (new_lora_B @ new_lora_A).view(eval(f'self.{param_name}').shape) * self.scaling
-            set_param(self, param_name, param=p_new, mode='update')
-            
-        return res_BA_list        
-    
     def merge_lora_param_repeat(self):
         r"""p_new = p + scaling * B @ A and keep differentiable to A and B"""
         for param_name, lora_name in self.params_with_lora.items():
@@ -750,7 +581,6 @@ class LoRALayer():
             # detach() is very important here
             p_new = p.detach() + self.merge_BA_repeat(param_name) * self.scaling
             set_param(self, param_name, param=p_new, mode='update')
-            
 
     def add_lora_data(self):
         r"""NOT differentiable"""
@@ -766,53 +596,6 @@ class LoRALayer():
         r"""NOT differentiable"""
         for param_name, lora_name in self.params_with_lora.items():
             eval(f'self.{param_name}').data -= self.merge_BA(param_name) * self.scaling
-
-    def sub_lora_data_res(self, res_BA_list, *res_layers):
-        r"""NOT differentiable"""
-        # if len(prev_layers[0]) == 0:
-        for param_name, lora_name in self.params_with_lora.items():
-            if self.r > 0:
-                eval(f'self.{param_name}').data -= self.merge_BA(param_name) * self.scaling   
-            # p = set_param(self, param_name, mode='get')    #for residual 
-            for i in range(len(res_layers[0])):
-                    # eval(f'self.{param_name}').data -= prev_layers[0][i].merge_BA(param_name) * prev_layers[0][i].scaling                          
-                    # eval(f'self.{param_name}').data -= prev_layers[0][i].merge_AB_new(param_name) * prev_layers[0][i].scaling      
-                    # p = set_param(self, param_name, mode='get')
-                    # p_new = p.detach()
-                    # prev_lora = prev_layers[0][i].merge_AB_new(param_name)
-                    # if prev_lora.mean() != 0:
-                    #     prev_lora *= scale_value[i]                                      
-                    # eval(f'self.{param_name}').data -= prev_lora 
-                # p_res = set_param(res_layers[0][i], param_name, mode='get')
-                # p_res_new = p_res.detach() + res_layers[0][i].merge_BA(param_name).detach() * res_layers[0][i].scaling
-
-                # res_BA = torch.zeros_like(p_res_new)
-                # if torch.all(p_res_new) != 0:            
-                #     res_BA = torch.inverse(p_res_new) - p.detach()  
-                             
-                    
-                eval(f'self.{param_name}').data -= res_BA_list[i]
-                # eval(f'self.{param_name}').data -= res_BA_list[i].detach()                                              
-
-    def sub_lora_data_res_concat(self, res_BA_list, *res_layers):
-        r"""NOT differentiable"""
-        # if len(prev_layers[0]) == 0:
-        for param_name, lora_name in self.params_with_lora.items():
-            new_lora_B = eval(f'self.{lora_name}_lora_B')
-            new_lora_A = eval(f'self.{lora_name}_lora_A') 
-
-            for i in range(len(res_layers[0])):
-                #inverse test
-                # res_lora_A = torch.transpose(eval(f'res_layers[0][{i}].{lora_name}_lora_B'), 0, 1)
-                # res_lora_B = torch.transpose(eval(f'res_layers[0][{i}].{lora_name}_lora_A'), 0, 1)
-                # new_lora_B = torch.cat((new_lora_B, res_lora_B), dim=1)
-                # new_lora_A = torch.cat((new_lora_A, res_lora_A), dim=0)
-                                
-                new_lora_B = torch.cat((new_lora_B, eval(f'res_layers[0][{i}].{lora_name}_lora_B')), dim=1)
-                new_lora_A = torch.cat((new_lora_A, eval(f'res_layers[0][{i}].{lora_name}_lora_A')), dim=0)            
-
-            # eval(f'self.{param_name}').data -=  (new_lora_B @ new_lora_A).t().view(eval(f'self.{param_name}').shape) * self.scaling
-            eval(f'self.{param_name}').data -= (new_lora_B @ new_lora_A).view(eval(f'self.{param_name}').shape) * self.scaling
 
     def sub_lora_data_repeat(self):
         r"""NOT differentiable"""
@@ -848,7 +631,6 @@ class LoRALayer():
                 self.add_lora_data_repeat()
             self.merged = True 
 
-#MY_EDIT 
 class WindowAttention_svdlora(nn.Module):
     r""" Window based multi-head self attention (W-MSA) module with relative position bias.
     It supports both of shifted and non-shifted window.
@@ -1285,8 +1067,6 @@ class PromptedSwinTransformerBlock(SwinTransformerBlock):
 
         return x, attn_values
 
-#MY_EDIT
-
 class SvdloraSwinTransformerBlock(nn.Module):
     r""" Swin Transformer Block.
     Args:
@@ -1330,7 +1110,7 @@ class SvdloraSwinTransformerBlock(nn.Module):
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
-        self.mlp = Mlp_svdlora(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
 
         if self.shift_size > 0:
             attn_mask = self.calculate_mask(self.input_resolution, 'cuda')
@@ -1931,8 +1711,6 @@ class ModelPromptedSwinTransformerBlock(SwinTransformerBlock):
 
         return x, attn_values
 
-#MY_EDIT
-
 class RSTB_svdlora(nn.Module):
     """Residual Swin Transformer Block (RSTB).
     Args:
@@ -2011,8 +1789,6 @@ class RSTB_svdlora(nn.Module):
 
         return flops
 
-#MY_EDIT
-
 class BasicLayer_svdlora(nn.Module):
     """ A basic Swin Transformer layer for one stage.
     Args:
@@ -2060,18 +1836,6 @@ class BasicLayer_svdlora(nn.Module):
                         drop=drop, attn_drop=attn_drop,
                         drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,  # noqa
                         norm_layer=norm_layer, prompt_config=prompt_config)                
-                # self.blocks = nn.ModuleList([
-                #     block_module(
-                #         prompt_config.NUM_TOKENS, prompt_config.LOCATION,
-                #         dim=dim, input_resolution=input_resolution,
-                #         num_heads=num_heads, window_size=window_size,
-                #         shift_size=0 if (i % 2 == 0) else window_size // 2,
-                #         mlp_ratio=mlp_ratio,
-                #         qkv_bias=qkv_bias, qk_scale=qk_scale,
-                #         drop=drop, attn_drop=attn_drop,
-                #         drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,  # noqa
-                #         norm_layer=norm_layer, prompt_deep =prompt_config.DEEP
-                #         )
                     for i in range(depth)])
                 if prompt_config.LOCATION != "prepend":
                     raise NotImplementedError()

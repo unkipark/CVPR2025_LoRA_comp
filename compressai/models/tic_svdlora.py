@@ -688,10 +688,7 @@ class TIC_svdlora(nn.Module):
                          use_checkpoint=use_checkpoint,
         )
         self.h_s3 = deconv(N, M*2, kernel_size=3, stride=2)
-        
-
-        # decoder_blocks = [RSTB_PromptModel if prompt_config.MODEL_DECODER and nn+1 in prompt_config.DECODER_BLOCK else RSTB for nn in range(4)]
-
+       
         self.g_s0 = RSTB_svdlora(dim=M,
                         input_resolution=(input_resolution[0]//16, input_resolution[1]//16),
                         depth=depths[2],
@@ -842,8 +839,6 @@ class TIC_svdlora(nn.Module):
 
         x_hat, attns_s = self.g_s(y_hat, x_size)
 
-        # x_hat = torch.clamp(x_hat, min=0.0, max=1.0) #my test
-
         return {
             "x_hat": x_hat,
             "likelihoods": {"y": y_likelihoods, "z": z_likelihoods},
@@ -853,15 +848,11 @@ class TIC_svdlora(nn.Module):
 
     def initialize_lora_svd(self):
         for n, p in self.named_parameters():
-            # if ('w_lora_U' in n):
             if ('w_lora_U' in n and 'g_s' in n):
                 ln = n.split('.')
-
                 r = eval(f'self.{ln[0]}.{ln[1]}.{ln[2]}[{ln[3]}].{ln[4]}.{ln[5]}').r
-
                 U, S, V = torch.svd(eval(f'self.{ln[0]}.{ln[1]}.{ln[2]}[{ln[3]}].{ln[4]}.{ln[5]}').weight.data.detach())
                 eval(f'self.{ln[0]}.{ln[1]}.{ln[2]}[{ln[3]}].{ln[4]}.{ln[5]}').w_lora_U = nn.Parameter(U[:,:r])                
-                # eval(f'self.{ln[0]}.{ln[1]}.{ln[2]}[{ln[3]}].{ln[4]}.{ln[5]}').w_lora_S = nn.Parameter(S[:r])                
                 eval(f'self.{ln[0]}.{ln[1]}.{ln[2]}[{ln[3]}].{ln[4]}.{ln[5]}').w_lora_V = nn.Parameter(V[:r,:].t())                               
 
     def update(self, scale_table=None, force=False):

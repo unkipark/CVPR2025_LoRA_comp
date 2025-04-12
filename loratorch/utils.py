@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from typing import Dict
 
-from .layers_res import LoRALayer
+from .layers import LoRALayer
 
 def print_trainable_parameters(model):
     r"""Prints the number of trainable parameters in the model."""
@@ -42,26 +42,11 @@ def mark_only_lora_as_trainable(model: nn.Module, bias: str = 'none') -> None:
 
 def mark_only_lora_as_trainable_singular_only(model: nn.Module, bias: str = 'none') -> None:
     for n, p in model.named_parameters():
-        # p.requires_grad = True
-        # if 'lora_' not in n:
-        #     p.requires_grad = False         
-        # if 'lora_S' not in n and 'g_s' in n:
-        #     p.requires_grad = False
-
         p.requires_grad = False            
         if 'lora_' in n and 'g_a' in n:
             p.requires_grad = True            
         if 'lora_S' in n and 'g_s' in n:
-            p.requires_grad = True            
-
-        # if 'lora_' in n and 'g_a1' in n:
-        #     p.requires_grad = False                        
-        # if 'lora_' in n and 'g_a3' in n:
-        #     p.requires_grad = False                                    
-        # if 'lora_' in n and 'g_s0' in n:
-        #     p.requires_grad = False            
-        # if 'lora_' in n and 'g_s2' in n:
-        #     p.requires_grad = False                 
+            p.requires_grad = True  
     if bias == 'none':
         return
     elif bias == 'all':

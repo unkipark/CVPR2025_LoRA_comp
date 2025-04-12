@@ -27,8 +27,10 @@ The following datasets are used and needed to be downloaded.
 - [COCO 2017 Train/Val](https://cocodataset.org/#download)
 
 ## Pre-trained weights:
-Once downloaded, the archive should be extracted and the contents placed within the `checkpoints` directory.<br>
-For example, the classification weights for quality level 1 should be located at `checkpoints/cls/1/checkpoint_best_loss.pth.tar`.<br>
+Once downloaded, the archive should be extracted, and its contents should be placed in the appropriate directories.
+The backbone codec weights must be located in the `examples/utils` directory, while all other weights should be placed under the `checkpoints` directory.
+For instance, the classification weights corresponding to quality level 1 should be located at `checkpoints/cls/1/checkpoint_best_loss.pth.tar`.
+
 | Tasks                  |       |
 |------------------------|-------|
 | **Backbone codec (TIC)**   | [Backbone code weight](./checkpoints/base_codec_1.pth) |

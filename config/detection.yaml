@@ -1,0 +1,61 @@
+hydra:
+  run:
+    dir: "${hydra:runtime.cwd}/od/${mode}/${quality_level}/${now:%Y-%m-%d_%H-%M-%S}"
+
+root: "${hydra:run.dir}"
+
+mode: "TTT" # pre, TTT(Test time training), test
+task_model: "faster_rcnn" # faster_rcnn, mask_rcnn, point_rend, detr
+model: "tic_svdlora" # tic_promptmodel_first2(TransTIC), tic_hp(TIC)
+dataset: "coco"
+dataset_path: "${oc.env:HOME}/data/detectron2/coco"
+example_path: "${hydra:runtime.cwd}/examples"
+
+## Control Parameters
+cuda: True
+save: True
+seed: 42
+gpu_id: 0
+LORA_METHOD: "svd" #svd or lora or linear(do noy apply lora)
+num_workers: 4
+num_images: 5000
+batch_size: 8 # Train
+test_batch_size: 1
+lmbda:  0.0018 # {0.0018, 0.0035, 0.0067, 0.013}, for human perception setting
+quality_level: 1 # {1,2,3,4}
+train_image_form: 0 # 0: original, 1: 256x256 patch
+epochs: 40 # TTT epochs
+learning_rate: 5.e-3 # for LoRA fine tuning
+aux_learning_rate: 1.e-3
+scheduler: "multistep"
+VPT_lmbdas: [2, 1, 0.5, 0.2]
+VPT_lmbda: null
+hyperparameter_tuning: False
+
+config_path: "${hydra:runtime.cwd}/config"
+detr_config_path: "${hydra:runtime.cwd}/libraries/detrex/projects/detr/configs/detr_r50_dc5_300ep.py"
+detr_ckpt_url: "https://github.com/IDEA-Research/detrex-storage/releases/download/v0.3.0/converted_detr_r50_dc5.pth"
+point_rend_config_path: "${hydra:runtime.cwd}/libraries/detectron2/projects/PointRend/configs/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_coco.yaml"
+point_rend_ckpt_url: "https://dl.fbaipublicfiles.com/detectron2/PointRend/InstanceSegmentation/pointrend_rcnn_R_50_FPN_3x_coco/164955410/model_final_edd263.pkl"
+tic_weight: "base_codec"
+pre_weight: "cls" # "cls" for open-set task, "od or is" for closed-set task
+checkpoint_backbone: "${hydra:runtime.cwd}/examples/utils/${tic_weight}_{quality_level}.pth.tar"  # backbone model 
+checkpoint_pre_trained: "${hydra:runtime.cwd}/checkpoints/${pre_weight}/${quality_level}/checkpoint_best_loss.pth.tar"  # task-specific pre-trained lora weight
+
+# TransTIC settings (fixed value)
+patch_size: 256
+clip_max_norm: 1.0
+LOCATION: 'prepend'
+DEEP: True
+NUM_TOKENS: 16
+INITIATION: 'random'
+PROJECT: -1
+DROPOUT: 0.
+TRANSFER_TYPE: 'prompt'
+ARCHITECT: 'both'
+WINDOW: 'same'
+HYPERPRIOR: False
+RETURN_ATTENTION: False
+MODEL_DECODER: False
+MASK_DOWNSAMPLE: 2
+DECODER_BLOCK: [1,2,3,4]

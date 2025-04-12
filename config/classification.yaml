@@ -1,24 +1,41 @@
-model: "tic_promptmodel_first2"
+hydra:
+  run:
+    dir: "${hydra:runtime.cwd}/cls/${mode}/${quality_level}/${now:%Y-%m-%d_%H-%M-%S}"
+
+root: "${hydra:run.dir}"
+
+mode: "TTT" # pre, TTT, test
+model: "tic_svdlora"
 dataset: "imagenet"
-dataset_path: '/path/to/dataset'
-epochs: 400
-learning_rate: 1.e-4
-num_workers: 4
-quality_level: 1 # {1,2,3,4}
-lmbda:  0.0018 # {0.0018, 0.0035, 0.0067, 0.013}
-batch_size: 16
-test_batch_size: 4
-aux_learning_rate: 1.e-3
-patch_size: 256
+dataset_path: "${oc.env:HOME}/data/ILSVRC2012/"
+
+## Control Parameters
 cuda: True
-gpu_id: 0
 save: True
-clip_max_norm: 1.0
-name: "exp"
-exp_name: "NAME"
-root: "/path/to/root"
 seed: 42
-checkpoint: "/Path/to/checkpoint"  # could be pre-trained base codec (for training) or trained TransTIC (for evaluation)
+gpu_id: 0
+LORA_METHOD: "svd" #svd or lora or linear(do noy apply lora)
+num_workers: 4
+num_images: 50000
+batch_size: 16 # Train
+test_batch_size: 1
+lmbda:  0.0018 # {0.0018, 0.0035, 0.0067, 0.013}, for human perception setting
+quality_level: 1 # {1,2,3,4}
+epochs: 40 # TTT epochs
+learning_rate: 5.e-3 # for LoRA fine tuning
+aux_learning_rate: 1.e-3
+scheduler: "multistep"
+VPT_lmbdas: [0.0009, 0.0017, 0.0033, 0.006]
+VPT_lmbda: null
+hyperparameter_tuning: False
+
+tic_weight: "base_codec"
+checkpoint_backbone: "${hydra:runtime.cwd}/examples/utils/${tic_weight}_{quality_level}.pth.tar"  # backbone model  
+checkpoint_pre_trained: "${hydra:runtime.cwd}/checkpoints/cls/${quality_level}/checkpoint_best_loss.pth.tar"  # task-specific pre-trained lora weight
+
+# TransTIC settings (fixed value)
+patch_size: 256
+clip_max_norm: 1.0
 LOCATION: 'prepend'
 DEEP: True
 NUM_TOKENS: 16
@@ -27,7 +44,6 @@ PROJECT: -1
 DROPOUT: 0.
 TRANSFER_TYPE: 'prompt'
 ARCHITECT: 'both'
-VPT_lmbda: 0.0018
 WINDOW: 'same'
 HYPERPRIOR: False
 RETURN_ATTENTION: False

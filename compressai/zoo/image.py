@@ -38,7 +38,7 @@ from compressai.models import (
     ScaleHyperprior,
     TIC_hp,
     TIC_PromptModel_first2,
-    TIC_svdlora, #MY_EDIT
+    TIC_svdlora,
 )
 
 from .pretrained import load_pretrained
@@ -52,7 +52,7 @@ __all__ = [
     "cheng2020_attn",
     'tic_hp',
     'tic_promptmodel_first2',
-    'tic_svdlora', #MY_EDIT
+    'tic_svdlora',
 ]
 
 model_architectures = {
@@ -64,7 +64,7 @@ model_architectures = {
     "cheng2020-attn": Cheng2020Attention,
     "tic_hp": TIC_hp,
     'tic_promptmodel_first2': TIC_PromptModel_first2,
-    'tic_svdlora': TIC_svdlora,  #MY_EDIT
+    'tic_svdlora': TIC_svdlora, 
 }
 
 root_url = "https://compressai.s3.amazonaws.com/models/v1"
@@ -272,7 +272,7 @@ cfgs = {
         7: (192, 320),
         8: (192, 320),
     },
-    'tic_svdlora': { #MY_EDIT
+    'tic_svdlora': {
         1: (128, 192),
         2: (128, 192),
         3: (128, 192),
@@ -485,8 +485,7 @@ def tic_promptmodel_first2(quality, metric="mse", pretrained=False, progress=Tru
         raise ValueError(f'Invalid quality "{quality}", should be between (1, 8)')
 
     return _load_model("tic_promptmodel_first2", metric, quality, pretrained, progress, **kwargs)
-
- #MY_EDIT
+ 
 def tic_svdlora(quality, metric="mse", pretrained=False, progress=True, **kwargs):
     r"""Neural image compression framework from Ming Lu and Zhan Ma
     "High-Efficiency Lossy Image Coding Through Adaptive Neighborhood Information Aggregation"

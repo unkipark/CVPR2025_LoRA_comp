@@ -1,4 +1,4 @@
 name = "lora"
 
-from .layers_res import *
+from .layers import *
 from .utils import *
