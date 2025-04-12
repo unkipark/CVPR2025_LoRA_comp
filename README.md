@@ -33,7 +33,7 @@ For instance, the classification weights corresponding to quality level 1 should
 
 | Tasks                  |       |
 |------------------------|-------|
-| **Backbone codec (TIC)**   | [Backbone code weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/tic.zip) |
+| **Backbone codec (TIC)**   | [Backbone codec weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/tic.zip) |
 | **Human Perception** | [HP weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/hp.zip) |
 | **Classification**     | [CLS weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/cls.zip) |
 | **Object Detection**   | [OD weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/od.zip) |
