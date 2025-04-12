@@ -14,10 +14,12 @@ Official Pytorch code for "Test-Time Fine-Tuning of Image Compression Models for
 - Pytorch 2.2.2 (CUDA 12.1)
 
 ## Getting Started:
-Clone this repo. and install the requirements.
-`git clone https://github.com/unkipark/CVPR2025_LoRA_comp.git`<br>
-`cd CVPR2025_LoRA_comp`<br>
-`./install.sh`<br>
+Clone this repo. and install the requirements.<br>
+```bash
+`git clone https://github.com/unkipark/CVPR2025_LoRA_comp.git`
+`cd CVPR2025_LoRA_comp`
+`./install.sh`
+```
 
 ## Dataset:
 The following datasets are used and needed to be downloaded.
@@ -25,8 +27,8 @@ The following datasets are used and needed to be downloaded.
 - [COCO 2017 Train/Val](https://cocodataset.org/#download)
 
 ## Pre-trained weights:
-Once downloaded, the archive should be extracted and the contents placed within the `checkpoints` directory.
-For example, the classification weights for quality level 1 should be located at `checkpoints/cls/1/checkpoint_best_loss.pth.tar`.
+Once downloaded, the archive should be extracted and the contents placed within the `checkpoints` directory.<br>
+For example, the classification weights for quality level 1 should be located at `checkpoints/cls/1/checkpoint_best_loss.pth.tar`.<br>
 | Tasks                  |       |
 |------------------------|-------|
 | **Backbone codec (TIC)**   | [Backbone code weight](./checkpoints/base_codec_1.pth) |
@@ -54,6 +56,9 @@ Additionally, other settings such as the target rate point, the corresponding la
 `python example/segmentation.py`<br>
 
 ## Performance:
+<p align="center">
+<img width="500" src="table.svg">
+</p>
 
 ## Citation:
 If you find our project useful, please cite the following paper:
@@ -62,6 +67,7 @@ If you find our project useful, please cite the following paper:
   title={Test-Time Fine-Tuning of Image Compression Models for Multi-Task Adaptability},
   author={Unki Park, Seongmoon Jeong, Youngchan Jang, Gyeong-Moon Park4 and Jong Hwan Ko},  
   booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={},
   year={2025}
 }
 ```
