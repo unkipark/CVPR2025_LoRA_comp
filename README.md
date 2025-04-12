@@ -52,7 +52,7 @@ To control this behavior, you must modify the `mode` field in each task-specific
 Specifically, set the mode to "pre" for pre-training and "TTT" for test-time fine-tuning.
 Additionally, other settings such as the target rate point, the corresponding lambda value, and the task-specific model can also be configured through the same configuration file.
 <p align="center">
-<img width="500" src="./src_images/ttft_procedure.svg">
+<img width="800" src="./src_images/ttft_procedure.svg">
 </p>
 
 ### Classification:
