@@ -33,11 +33,18 @@ For instance, the classification weights corresponding to quality level 1 should
 
 | Tasks                  |       |
 |------------------------|-------|
-| **Backbone codec (TIC)**   | [Backbone code weight](./checkpoints/base_codec_1.pth) |
-| **Human Perception** | [HP weight](./checkpoints/segmentation_1.pth) |
-| **Classification**     | [CLS weight](./checkpoints/classification_1.pth) |
-| **Object Detection**   | [OD weight](./checkpoints/detection_1.pth) |
-| **Instance Segmentation** | [IS weight](./checkpoints/segmentation_1.pth) |
+| **Backbone codec (TIC)**   | [Backbone code weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/tic.zip) |
+| **Human Perception** | [HP weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/hp.zip) |
+| **Classification**     | [CLS weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/cls.zip) |
+| **Object Detection**   | [OD weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/od.zip) |
+| **Instance Segmentation** | [IS weight](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/is.zip) |
+
+## Pre-trained weights(for taskloss):
+After downloading, the model weights should be placed in the `config` directory.
+| Tasks                  |       |
+|------------------------|-------|
+| **Object Detection**   | [Faster RCNN](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/model_final_280758.pkl) |
+| **Instance Segmentation** | [Mask RCNN](https://github.com/unkipark/CVPR2025_LoRA_comp/releases/download/v1.0/model_final_f10217.pkl) |
 
 ## Usage:
 Our method consists of two stages: pre-training and test-time fine-tuning.
