@@ -3,7 +3,7 @@
 Official Pytorch code for "Test-Time Fine-Tuning of Image Compression Models for Multi-TaskAdaptability"
 
 <p align="center">
-<img width="500" src="overview.svg">
+<img width="500" src="./src_images/overview.svg">
 </p>
 
 ## Abstract:
@@ -43,7 +43,7 @@ To control this behavior, you must modify the `mode` field in each task-specific
 Specifically, set the mode to "pre" for pre-training and "TTT" for test-time fine-tuning.
 Additionally, other settings such as the target rate point, the corresponding lambda value, and the task-specific model can also be configured through the same configuration file.
 <p align="center">
-<img width="500" src="ttft_procedure.svg">
+<img width="500" src="./src_images/ttft_procedure.svg">
 </p>
 
 ### Classification:
@@ -59,12 +59,12 @@ Additionally, other settings such as the target rate point, the corresponding la
 
 ### Quantitative Results
 <p align="center">
-  <img src="table_new.svg" width="800" alt="Figure: Table Visualization">
+  <img src="./src_images/table.svg" width="800" alt="Figure: Table Visualization">
 </p>
 
 ### Qualitative Results
 <p align="center">
-  <img src="vis_od_results.svg" width="800" alt="Figure: Table Visualization">
+  <img src="./src_images/vis_od_results.svg" width="800" alt="Figure: Table Visualization">
 </p>
 
 ## Citation:
