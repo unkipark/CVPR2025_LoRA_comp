@@ -16,9 +16,9 @@ Official Pytorch code for "Test-Time Fine-Tuning of Image Compression Models for
 ## Getting Started:
 Clone this repo. and install the requirements.<br>
 ```bash
-`git clone https://github.com/unkipark/CVPR2025_LoRA_comp.git`
-`cd CVPR2025_LoRA_comp`
-`./install.sh`
+git clone https://github.com/unkipark/CVPR2025_LoRA_comp.git
+cd CVPR2025_LoRA_comp
+./install.sh
 ```
 
 ## Dataset:
@@ -56,8 +56,15 @@ Additionally, other settings such as the target rate point, the corresponding la
 `python example/segmentation.py`<br>
 
 ## Performance:
+
+### Quantitative Results
 <p align="center">
   <img src="table_new.svg" width="800" alt="Figure: Table Visualization">
+</p>
+
+### Qualitative Results
+<p align="center">
+  <img src="vis_od_results.svg" width="800" alt="Figure: Table Visualization">
 </p>
 
 ## Citation:
