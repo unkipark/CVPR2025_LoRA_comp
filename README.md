@@ -57,8 +57,9 @@ Additionally, other settings such as the target rate point, the corresponding la
 
 ## Performance:
 <p align="center">
-<img width="500" src="table.svg">
+  <img src="table.svg" width="800" alt="Figure: Table Visualization">
 </p>
+
 
 ## Citation:
 If you find our project useful, please cite the following paper:
