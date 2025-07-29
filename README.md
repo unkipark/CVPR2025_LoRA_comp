@@ -79,12 +79,13 @@ Additionally, other settings such as the target rate point, the corresponding la
 ## Citation:
 If you find our project useful, please cite the following paper:
 ```bibtex
-@inproceedings{LoRA_comp,
-  title={Test-Time Fine-Tuning of Image Compression Models for Multi-Task Adaptability},
-  author={Unki Park, Seongmoon Jeong, Youngchan Jang, Gyeong-Moon Park and Jong Hwan Ko},  
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  pages={},
-  year={2025}
+@InProceedings{LoRA_comp,
+    author    = {Park, Unki and Jeong, Seongmoon and Jang, Youngchan and Park, Gyeong-Moon and Ko, Jong Hwan},
+    title     = {Test-Time Fine-Tuning of Image Compression Models for Multi-Task Adaptability},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2025},
+    pages     = {4430-4440}
 }
 ```
 
